@@ -1,0 +1,15 @@
+{
+  "name": "platzi-curso-backend-express",
+  "version": "1.0.0",
+  "description": "Curso back-end de pltazi con express",
+  "license": "MIT",
+  "author": "Claudio D'Angiolo",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

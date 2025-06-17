@@ -4,6 +4,11 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+const fs = require('node:fs');
+const path = require('node:path');
+
+const filePath = path.join(__dirname, 'users.json');
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -27,7 +32,7 @@ app.get('/search', (req, res) => {
 });
 
 app.post('/form', (req, res) => {
-    const name = req.body.nombre || 'No especifica nombre';
+    const name = req.body.name || 'No especifica nombre';
     const email = req.body.email || 'Email no especificado'
 
     res.json({
@@ -48,6 +53,41 @@ app.post('/api/data', (req, res) => {
         message: 'Datos recibidos de manera exitosa',
         data
     });
+})
+
+app.get('/users', (req, res) => {
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+        if(err) return res.status(500).json({message: "No se ha encontrado el archivo"});
+
+        const users = JSON.parse(data)
+        return res.json(users);
+    });
+});
+
+app.post('/users', (req, res) => {
+    const  newUser = req.body;
+
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+        if(err) return res.status(500).json({error: "Se produjo un error al leer el archivo"});
+
+        let parsedData = JSON.parse(data);
+
+        const findUser = parsedData.find(user => user.name === newUser.name);
+
+        if(findUser) { 
+            console.log('entra acá');
+           return res.status(500).json({error: "El usuario ya se encuentra creado", user: findUser});
+        }
+
+        parsedData = [...parsedData, newUser];
+
+        fs.writeFile(filePath, JSON.stringify(parsedData, null, 2), error => {
+            if(error) res.status(500).json({error: "Se produjo un error al intentar crear un nuevo usuario."})
+
+            return res.status(201).json(newUser);
+        });
+    
+    })
 })
 
 app.listen(PORT, () => console.log(`Servidor: http://localhost:${PORT}`))

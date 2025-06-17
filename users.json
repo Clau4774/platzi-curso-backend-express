@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Claudio",
+    "age": 34,
+    "email": "claudio@algo.com"
+  },
+  {
+    "name": "Dante",
+    "age": 9,
+    "email": "dante@algo.com"
+  },
+  {
+    "name": "Cintia",
+    "age": 33,
+    "email": "cintia@algo.com"
+  },
+  {
+    "name": "Lucas",
+    "age": 31,
+    "email": "lucas@algo.com"
+  },
+  {
+    "name": "Daniel",
+    "age": 75,
+    "email": "daniel@algo.com"
+  },
+  {
+    "name": "Mirta",
+    "age": 58,
+    "email": "mirta@algo.com"
+  },
+  {
+    "name": "Dieter",
+    "age": 31,
+    "email": "dieter@algo.com"
+  }
+]

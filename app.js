@@ -2,6 +2,9 @@
 const express = require('express');
 const app = express();
 
+const {validateEmail, validateNotDuplicateUsers, validateNameLength} = require('./utils/validateFields.js');
+const {errorGetData, errorExistingUser, errorWrithingFile} = require('./utils/errorHandler.js');
+
 const PORT = process.env.PORT || 3000;
 
 const fs = require('node:fs');
@@ -57,7 +60,7 @@ app.post('/api/data', (req, res) => {
 
 app.get('/users', (req, res) => {
     fs.readFile(filePath, 'utf-8', (err, data) => {
-        if(err) return res.status(500).json({message: "No se ha encontrado el archivo"});
+        if(err) return errorGetData;
 
         const users = JSON.parse(data)
         return res.json(users);
@@ -67,26 +70,40 @@ app.get('/users', (req, res) => {
 app.post('/users', (req, res) => {
     const  newUser = req.body;
 
-    fs.readFile(filePath, 'utf-8', (err, data) => {
-        if(err) return res.status(500).json({error: "Se produjo un error al leer el archivo"});
+    fs.readFile(filePath, 'utf-8', (error, data) => {
+        if(error) return errorGetData(res);
 
-        let parsedData = JSON.parse(data);
+        const parsedUsers = JSON.parse(data);
 
-        const findUser = parsedData.find(user => user.name === newUser.name);
+        if(validateNotDuplicateUsers(newUser.id, parsedUsers)) return errorExistingUser(res);
 
-        if(findUser) { 
-            console.log('entra acá');
-           return res.status(500).json({error: "El usuario ya se encuentra creado", user: findUser});
-        }
+        parsedUsers.push(newUser);
 
-        parsedData = [...parsedData, newUser];
-
-        fs.writeFile(filePath, JSON.stringify(parsedData, null, 2), error => {
-            if(error) res.status(500).json({error: "Se produjo un error al intentar crear un nuevo usuario."})
+        fs.writeFile(filePath, JSON.stringify(parsedUsers, null, 2), err => {
+            if (err) return errorWrithingFile(res);
 
             return res.status(201).json(newUser);
-        });
+        })
+    })
     
+})
+
+app.put('/users/:id', (req, res) => {
+    const userId = Number(req.params.id);
+    const userNewData = req.body;
+
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+        if (err) return errorGetData(res);
+
+        const users = JSON.parse(data);
+
+        const updateUserList = users.map(user => user.id === userId ? {...user, ...userNewData} : user);
+
+        fs.writeFile(filePath, JSON.stringify(updateUserList, null, 2), err => {
+            if (err) return errorWrithingFile(res);
+
+            return res.status(200).json(userNewData);
+        })
     })
 })
 
